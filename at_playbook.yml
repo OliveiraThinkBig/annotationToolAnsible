@@ -1,0 +1,13 @@
+---
+# Ansible playbook for annotation tool deployment
+
+- name: annotation tool
+  hosts: localhost
+  ##connection: local
+  vars:
+
+    #SWpath_local serves for debugging when we dont want to download everything again and again
+    SWpath: /media/sf_Cognitive/annotationToolAnsible/roles/installer/files/
+
+  roles:
+    - role: installer

@@ -1,0 +1,90 @@
+# installer role
+
+# - name: Install required packages
+#   yum: name={{item}} state=present
+#   with_items:
+#     - sudo
+#     - yum
+#   become: True 
+#   become_method: sudo
+
+#RUN yum -y --setopt=tsflags=nodocs update && \
+#                    yum -y --setopt=tsflags=nodocs install httpd && \
+#                    yum -y install unzip && \
+#                    yum -y install java-1.8.0-openjdk && \
+#                    yum -y install nano apache2ctl && \
+#                    yum clean all
+#
+- name: yum update
+  shell: "yum -y --setopt=tsflags=nodocs update"
+  become: True 
+  become_method: sudo
+
+- name: yum install httpd
+  shell: "yum -y --setopt=tsflags=nodocs install httpd"
+  become: True 
+  become_method: sudo
+
+- name: yum install java
+  shell: "yum -y install java-1.8.0-openjdk"
+  become: True 
+  become_method: sudo
+
+- name: yum clean all
+  shell: "yum clean all"
+  become: True 
+  become_method: sudo
+
+
+#RUN mkdir -p /opt/annotations
+- name: create directory
+  shell: "mkdir -p /opt/annotations"
+  become: True 
+  become_method: sudo
+
+#COPY ./target/universal/annotation-tool-bankia-3.zip /opt/annotations
+- name: Copy requirements file for annotation-tool
+  copy: src="{{ SWpath }}annotation-tool-bankia-3.zip" dest="/opt/annotations"
+
+#RUN unzip /opt/annotations/annotation-tool-bankia-3.zip -d /opt/annotations
+- name: run unzip annotation-tool-bankia-3.zip
+  shell: "unzip /opt/annotations/annotation-tool-bankia-3.zip -d /opt/annotations"
+  become: True 
+  become_method: sudo
+
+#RUN chmod +x /opt/annotations/annotation-tool-bankia-3/bin/annotation-tool-bankia
+- name: run chmod +x annotation-tool-bankia-3.zip
+  shell: "chmod +x /opt/annotations/annotation-tool-bankia-3/bin/annotation-tool-bankia"
+  become: True 
+  become_method: sudo
+#
+#EXPOSE 80
+#
+##RUN htpasswd -b -c /etc/httpd/.htpasswd admin admin
+- name: run htpasswd
+  shell: "htpasswd -b -c /etc/httpd/.htpasswd admin admin"
+  become: True 
+  become_method: sudo
+##RUN mkdir -p /etc/httpd/sites-enabled
+- name: run mkdir
+  shell: "mkdir -p /etc/httpd/sites-enabled"
+  become: True 
+  become_method: sudo
+##COPY docker/000-default.conf /etc/httpd/sites-enabled
+- name: Copy proxy config file
+  copy: src="{{ SWpath }}000-default.conf" dest="/etc/httpd/sites-enabled"
+#
+#
+#RUN sed -i '/Listen 80/s//Listen 0.0.0.0:80/' /etc/httpd/conf/httpd.conf
+- name: run sed
+  shell: "sed -i '/Listen 80/s//Listen 0.0.0.0:80/' /etc/httpd/conf/httpd.conf"
+  become: True 
+  become_method: sudo
+#RUN echo "IncludeOptional sites-enabled/*.conf" >> /etc/httpd/conf/httpd.conf
+- name: run echo
+  shell: "echo 'IncludeOptional sites-enabled/*.conf' >> /etc/httpd/conf/httpd.conf"
+  become: True 
+  become_method: sudo
+#RUN /usr/sbin/apachectl configtest
+
+# start services
