@@ -1,0 +1,43 @@
+
+<VirtualHost *:{{ VirtualHostPort }}>
+  <Location "/">
+    AuthType Basic
+    AuthName "Restricted Content"
+    AuthUserFile /etc/httpd/.htpasswd
+    Require valid-user
+  </Location>
+
+  ProxyPass               /        http://localhost:9000/ nocanon
+  ProxyPassReverse        /        http://localhost:9000/
+  ProxyPreserveHost       On
+
+  ProxyRequests           Off
+  AllowEncodedSlashes     NoDecode
+</VirtualHost>
+
+
+#<IfModule mod_ssl.c>
+#  <VirtualHost _default_:443>
+#    <Location />
+#      AuthType Basic
+#      AuthName "LDAP Login"
+#      AuthBasicProvider ldap
+#      AuthLDAPBindDN USER@DOMAIN
+#      AuthLDAPBindPassword PASSWORD
+#      AuthLDAPURL ldap://IP:PORT/OU=...,DC=...,DC=...,DC=intern?uid?sub
+#      Require ldap-group CN=...,OU=...,OU=...,OU=...,DC=...,DC=...,DC=intern
+#      Require valid-user
+#    </Location>
+
+#    ProxyPass               /        http://localhost:9000/ nocanon
+#    ProxyPassReverse        /        http://localhost:9000/
+#    ProxyPreserveHost       On
+
+#    ProxyRequests           Off
+#    AllowEncodedSlashes     NoDecode
+#    RequestHeader set X-Forwarded-Proto "https"
+#    RequestHeader set X-Forwarded-Port "443"
+#  </<VirtualHost _default_:443>
+#</IfModule mod_ssl.c>
+
+

@@ -4,10 +4,16 @@
 - name: annotation tool
   hosts: localhost
   ##connection: local
-  vars:
+  vars_prompt:
+    - name: "admin_http_pass"
+      prompt: "Enter password for admin user"
 
-    #SWpath_local serves for debugging when we dont want to download everything again and again
-    SWpath: /media/sf_Cognitive/annotationToolAnsible/roles/installer/files/
+  vars:
+    annotation_tool:
+      installation_path: "/usr/local/"
+      user: "annotation"
+      config_file: "" # TODO: You should put here where do you want to put a copy of /etc/httpd/conf/httpd.conf reachable by our own user and there you could include the 000-default.conf file.
+      VirtualHostPort: "80"
 
   roles:
     - role: installer

@@ -1,33 +1,35 @@
+Skip to content
+This repository
+Search
+Pull requests
+Issues
+Marketplace
+Explore
+ @OliveiraThinkBig
+ Sign out
+ Unwatch 2
+  Star 0  Fork 0 OliveiraThinkBig/annotationToolAnsible
+ Code  Issues 0  Pull requests 1  Projects 0  Wiki  Insights  Settings
+Branch: review/saulr Find file Copy pathannotationToolAnsible/roles/installer/tasks/main.yml
+6b51884  3 hours ago
+@Saul-R Saul-R Review:
+2 contributors @Saul-R @OliveiraThinkBig
+RawBlameHistory     
+Executable File  111 lines (89 sloc)  2.72 KB
+---
 # installer role
 
-# - name: Install required packages
-#   yum: name={{item}} state=present
-#   with_items:
-#     - sudo
-#     - yum
-#   become: True 
-#   become_method: sudo
-
-#RUN yum -y --setopt=tsflags=nodocs update && \
-#                    yum -y --setopt=tsflags=nodocs install httpd && \
-#                    yum -y install unzip && \
-#                    yum -y install java-1.8.0-openjdk && \
-#                    yum -y install nano apache2ctl && \
-#                    yum clean all
-#
 - name: yum update
-  shell: "yum -y --setopt=tsflags=nodocs update"
+  shell: "yum -y update"
   become: True 
   become_method: sudo
 
-- name: yum install httpd
-  shell: "yum -y --setopt=tsflags=nodocs install httpd"
-  become: True 
-  become_method: sudo
-
-- name: yum install java
-  shell: "yum -y install java-1.8.0-openjdk"
-  become: True 
+- name: yum install prereq
+  with_items:
+    - "java-1.8.0-openjdk"
+    - "httpd"
+  yum: name={{ item }} state=present
+  become: True
   become_method: sudo
 
 - name: yum clean all
@@ -35,56 +37,96 @@
   become: True 
   become_method: sudo
 
+- name: Create user annotations
+  user:
+    name: "{{ annotation_tool.user }}"
+    comment: "Annotation tools user"
+  become: True
+  become_method: sudo
 
-#RUN mkdir -p /opt/annotations
-- name: create directory
-  shell: "mkdir -p /opt/annotations"
+- name: Declare directory for installation
+  file:
+    path: "{{ annotation_tool.installation_path }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ annotation_tool.user }}"
+  become: True
+  become_method: sudo
+
+- name: Send and unarchive the annotation tool
+  unarchive:
+    src: "annotation-tool-bankia-3.zip"
+    dest: "{{ annotation_tool.installation_path }}"
+  become: True
+  become_user: "{{ annotation_tool.installation_path }}"
+
+- name: Declare annotations binary as executable
+  file:
+    path: "{{ annotation_tool.installation_path }}/bin/annotation-tool-bankia"
+    mode: "0755"
   become: True 
   become_method: sudo
 
-#COPY ./target/universal/annotation-tool-bankia-3.zip /opt/annotations
-- name: Copy requirements file for annotation-tool
-  copy: src="{{ SWpath }}annotation-tool-bankia-3.zip" dest="/opt/annotations"
-
-#RUN unzip /opt/annotations/annotation-tool-bankia-3.zip -d /opt/annotations
-- name: run unzip annotation-tool-bankia-3.zip
-  shell: "unzip /opt/annotations/annotation-tool-bankia-3.zip -d /opt/annotations"
-  become: True 
-  become_method: sudo
-
-#RUN chmod +x /opt/annotations/annotation-tool-bankia-3/bin/annotation-tool-bankia
-- name: run chmod +x annotation-tool-bankia-3.zip
-  shell: "chmod +x /opt/annotations/annotation-tool-bankia-3/bin/annotation-tool-bankia"
-  become: True 
-  become_method: sudo
-#
-#EXPOSE 80
-#
-##RUN htpasswd -b -c /etc/httpd/.htpasswd admin admin
 - name: run htpasswd
-  shell: "htpasswd -b -c /etc/httpd/.htpasswd admin admin"
+  shell: "htpasswd -b -c /etc/httpd/.htpasswd admin {{ admin_http_pass }}"
   become: True 
   become_method: sudo
-##RUN mkdir -p /etc/httpd/sites-enabled
-- name: run mkdir
-  shell: "mkdir -p /etc/httpd/sites-enabled"
+
+- name: Declare sites-enabled directory
+  file:
+    path: "/etc/httpd/sites-enabled"
   become: True 
   become_method: sudo
-##COPY docker/000-default.conf /etc/httpd/sites-enabled
+
+#- name: Copy proxy config file
+#  copy: src="000-default.conf" dest="/etc/httpd/sites-enabled"
 - name: Copy proxy config file
-  copy: src="{{ SWpath }}000-default.conf" dest="/etc/httpd/sites-enabled"
-#
-#
-#RUN sed -i '/Listen 80/s//Listen 0.0.0.0:80/' /etc/httpd/conf/httpd.conf
-- name: run sed
-  shell: "sed -i '/Listen 80/s//Listen 0.0.0.0:80/' /etc/httpd/conf/httpd.conf"
+  template: src="000-default.conf" dest="/etc/httpd/sites-enabled/"
+  become: True
+  become_method: sudo
+# One of the nice things of Ansible is to be able to think declaratively.
+# You should describe how you want the state to be, not the steps to get to that
+
+- name:
+  lineinfile:
+    regexp: "Listen {{ VirtualHostPort }}"
+    line: "Listen 0.0.0.0:{{ VirtualHostPort }}"
+    dest: "/etc/httpd/conf/httpd.conf"
+  become: True
+  become_method: sudo
+
+- name: Declare OptionalIncludes line on httpd conf file
+  lineinfile:
+    line: "IncludeOptional sites-enabled/*.conf"
+    dest: "/etc/httpd/conf/httpd.conf"
   become: True 
   become_method: sudo
-#RUN echo "IncludeOptional sites-enabled/*.conf" >> /etc/httpd/conf/httpd.conf
-- name: run echo
-  shell: "echo 'IncludeOptional sites-enabled/*.conf' >> /etc/httpd/conf/httpd.conf"
-  become: True 
+
+- name: Test config.
+  shell: /usr/sbin/apachectl configtest
+  become: True
   become_method: sudo
+
 #RUN /usr/sbin/apachectl configtest
 
+- name: Copy service file
+  template: src=annotations-tool.service.j2 dest="/usr/lib/systemd/system/" mode=0644 owner="{{ annotation_tool.user }}" group=root
+  become: True
+  become_method: sudo
+
+- name: systemctl daemon-reload to make our unit file visible
+  shell: "systemctl daemon-reload"
+  become: True
+  become_method: sudo
+
+- name: enable annotations-tool.service to start at boot
+  shell: "systemctl enable annotations-tool"
+  become: True
+  become_method: sudo
+
+# TODO: There is no init service here. Try using a template and handlers for the service. If not just use the sysctl command, very similar to the last one.
+
+
+
 # start services
+...
