@@ -81,7 +81,7 @@ Executable File  111 lines (89 sloc)  2.72 KB
 #- name: Copy proxy config file
 #  copy: src="000-default.conf" dest="/etc/httpd/sites-enabled"
 - name: Copy proxy config file
-  template: src="000-default.conf" dest="/etc/httpd/sites-enabled/"
+  template: src="000-default.conf.j2" dest="/etc/httpd/sites-enabled/000-default.conf"
   become: True
   become_method: sudo
 # One of the nice things of Ansible is to be able to think declaratively.
