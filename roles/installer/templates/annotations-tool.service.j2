@@ -1,0 +1,11 @@
+[Unit]
+Description=annotations-tool
+After=network.target firewalld.service
+
+[Service]
+User={{ annotation_tool.user }}
+ExecStart={{ annotation_tool.installation_path }}annotation-tool-bankia-3/bin/annotation-tool-bankia
+
+
+[Install]
+WantedBy=multi-user.target
