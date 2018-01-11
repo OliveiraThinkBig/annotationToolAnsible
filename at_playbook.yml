@@ -3,16 +3,17 @@
 
 - name: annotation tool
   hosts: localhost
-  ##connection: local
+  connection: local
   vars_prompt:
     - name: "admin_http_pass"
       prompt: "Enter password for admin user"
 
   vars:
     annotation_tool:
-      installation_path: "/usr/local/"
+      installation_path: "/usr/local/annotations/"
       user: "annotation"
       config_file: "" # TODO: You should put here where do you want to put a copy of /etc/httpd/conf/httpd.conf reachable by our own user and there you could include the 000-default.conf file.
+    httpd:      
       VirtualHostPort: "80"
 
   roles:

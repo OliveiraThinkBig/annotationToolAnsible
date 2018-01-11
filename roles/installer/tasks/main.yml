@@ -40,11 +40,11 @@
     src: "annotation-tool-bankia-3.zip"
     dest: "{{ annotation_tool.installation_path }}"
   become: True
-  become_user: "{{ annotation_tool.installation_path }}"
+  become_method: sudo
 
 - name: Declare annotations binary as executable
   file:
-    path: "{{ annotation_tool.installation_path }}/bin/annotation-tool-bankia"
+    path: "{{ annotation_tool.installation_path }}annotation-tool-bankia-3/bin/annotation-tool-bankia"
     mode: "0755"
   become: True 
   become_method: sudo
@@ -56,7 +56,9 @@
 
 - name: Declare sites-enabled directory
   file:
-    path: "/etc/httpd/sites-enabled"
+    path: "/etc/httpd/sites-enabled/"
+    state: "directory"
+    mode: "0755"
   become: True 
   become_method: sudo
 
@@ -69,10 +71,10 @@
 # One of the nice things of Ansible is to be able to think declaratively.
 # You should describe how you want the state to be, not the steps to get to that
 
-- name:
+- name: change listen port on proxy config file
   lineinfile:
-    regexp: "Listen {{ VirtualHostPort }}"
-    line: "Listen 0.0.0.0:{{ VirtualHostPort }}"
+    regexp: "Listen {{ httpd.VirtualHostPort }}"
+    line: "Listen 0.0.0.0:{{ httpd.VirtualHostPort }}"
     dest: "/etc/httpd/conf/httpd.conf"
   become: True
   become_method: sudo
@@ -108,7 +110,10 @@
 
 # TODO: There is no init service here. Try using a template and handlers for the service. If not just use the sysctl command, very similar to the last one.
 
-
+- name: start service annotations-tool.service
+  shell: "systemctl start annotations-tool"
+  become: True
+  become_method: sudo
 
 # start services
 ...

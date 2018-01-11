@@ -1,0 +1,1 @@
+ansible-playbook -i inventories/local.inv --check at_playbook.yml
