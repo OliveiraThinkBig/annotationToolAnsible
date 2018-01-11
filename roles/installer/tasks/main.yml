@@ -94,7 +94,7 @@
 #RUN /usr/sbin/apachectl configtest
 
 - name: Copy service file
-  template: src=annotations-tool.service.j2 dest="/usr/lib/systemd/system/" mode=0644 owner="{{ annotation_tool.user }}" group=root
+  template: src=annotations-tool.service.j2 dest="/usr/lib/systemd/system/annotations-tool.service" mode=0644 owner="{{ annotation_tool.user }}" group=root
   become: True
   become_method: sudo
 
