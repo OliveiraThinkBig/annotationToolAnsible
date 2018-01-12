@@ -35,6 +35,15 @@
   become: True
   become_method: sudo
 
+- name: Declare directory for logs
+  file:
+    path: "{{ annotation_tool.log_path }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ annotation_tool.user }}"
+  become: True
+  become_method: sudo
+
 - name: Send and unarchive the annotation tool
   unarchive:
     src: "annotation-tool-bankia-3.zip"
@@ -42,10 +51,19 @@
   become: True
   become_method: sudo
 
+- name: Declare annotations ownership
+  file:
+    path: "{{ annotation_tool.installation_path }}annotation-tool-bankia-3/"
+    mode: "0755"
+    owner: "{{ annotation_tool.user }}"
+  become: True 
+  become_method: sudo
+
 - name: Declare annotations binary as executable
   file:
     path: "{{ annotation_tool.installation_path }}annotation-tool-bankia-3/bin/annotation-tool-bankia"
     mode: "0755"
+    owner: "{{ annotation_tool.user }}"
   become: True 
   become_method: sudo
 
@@ -108,12 +126,20 @@
   become: True
   become_method: sudo
 
+- name: enable httpd.service to start at boot
+  shell: "systemctl enable httpd"
+  become: True
+  become_method: sudo
 # TODO: There is no init service here. Try using a template and handlers for the service. If not just use the sysctl command, very similar to the last one.
+
+- name: start service httpd.service
+  shell: "systemctl start httpd"
+  become: True
+  become_method: sudo
 
 - name: start service annotations-tool.service
   shell: "systemctl start annotations-tool"
   become: True
   become_method: sudo
-
 # start services
 ...
