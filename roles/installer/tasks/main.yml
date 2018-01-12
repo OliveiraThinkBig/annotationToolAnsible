@@ -91,7 +91,7 @@
 
 - name: change listen port on proxy config file
   lineinfile:
-    regexp: "Listen {{ httpd.VirtualHostPort }}"
+    regexp: "Listen 80"
     line: "Listen 0.0.0.0:{{ httpd.VirtualHostPort }}"
     dest: "/etc/httpd/conf/httpd.conf"
   become: True
