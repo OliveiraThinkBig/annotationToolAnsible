@@ -7,8 +7,8 @@
     Require valid-user
   </Location>
 
-  ProxyPass               /        http://localhost:9000/ nocanon
-  ProxyPassReverse        /        http://localhost:9000/
+  ProxyPass               /        http://localhost:{{ annotation_tool.internal_port }}/ nocanon
+  ProxyPassReverse        /        http://localhost:{{ annotation_tool.internal_port }}/
   ProxyPreserveHost       On
 
   ProxyRequests           Off
