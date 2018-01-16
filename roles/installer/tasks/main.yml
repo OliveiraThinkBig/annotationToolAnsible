@@ -53,7 +53,7 @@
 
 - name: Declare annotations ownership
   file:
-    path: "{{ annotation_tool.installation_path }}annotation-tool-bankia-3/"
+    path: "{{ annotation_tool.installation_path }}/annotation-tool-bankia-3/"
     mode: "0755"
     owner: "{{ annotation_tool.user }}"
   become: True 
@@ -86,8 +86,6 @@
   template: src="000-default.conf.j2" dest="/etc/httpd/sites-enabled/000-default.conf"
   become: True
   become_method: sudo
-# One of the nice things of Ansible is to be able to think declaratively.
-# You should describe how you want the state to be, not the steps to get to that
 
 - name: change listen port on proxy config file
   lineinfile:
@@ -96,6 +94,12 @@
     dest: "/etc/httpd/conf/httpd.conf"
   become: True
   become_method: sudo
+
+- name: Template configuration.
+  template:
+    src: application.conf.j2
+    dest: "{{ annotation_tools.installation_path }}/annotation-tool-bankia-3/conf/annotation.conf"
+
 
 - name: Declare OptionalIncludes line on httpd conf file
   lineinfile:

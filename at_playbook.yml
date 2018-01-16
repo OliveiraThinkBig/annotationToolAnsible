@@ -13,7 +13,8 @@
       installation_path: "/usr/local/annotations/"
       log_path: "/var/log/annotations/"
       user: "annotation"
-      config_file: "" # TODO: You should put here where do you want to put a copy of /etc/httpd/conf/httpd.conf reachable by our own user and there you could include the 000-default.conf file.
+      internal_port: "9001"
+      base_dir_images: ""
     httpd:      
       VirtualHostPort: "80"
 
