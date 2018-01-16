@@ -14,7 +14,8 @@
       log_path: "/var/log/annotations/"
       user: "annotation"
       internal_port: "9001"
-      base_dir_images: ""
+      base_dir_images: "/tmp/fs_servicios/cognitiv/data/tmp/img"
+      base_dir_ann: "/tmp/fs_servicios/cognitiv/data/tmp/ann"
     httpd:      
       VirtualHostPort: "80"
 

@@ -374,11 +374,11 @@ db {
 }
 
 
-http.port = {{ annotation_tools.internal_port }}
-base.dir.img = "/data/annotation_install/Bankia_DocumentAutomation/annotationtool/version2/public/"
+http.port = {{ annotation_tool.internal_port }}
+base.dir.img = "{{ annotation_tool.base_dir_images }}"
 base.path.img = "data"
 img.path = "test" 
-base.dir.ann = "{{ annotation_tools.base_dir_images }}"
+base.dir.ann = "{{ annotation_tool.base_dir_ann }}"
 ann.path.in = "DBPF2017_3"
 ann.path.out = "DBPF2017_3"
 ann.style.in = "aisin"
