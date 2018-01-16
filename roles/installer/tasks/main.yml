@@ -98,7 +98,7 @@
 - name: Template configuration.
   template:
     src: application.conf.j2
-    dest: "{{ annotation_tools.installation_path }}/annotation-tool-bankia-3/conf/annotation.conf"
+    dest: "{{ annotation_tool.installation_path }}/annotation-tool-bankia-3/conf/annotation.conf"
 
 
 - name: Declare OptionalIncludes line on httpd conf file
